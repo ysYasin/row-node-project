@@ -9,7 +9,7 @@ const url = require("url");
 const { StringDecoder } = require("string_decoder");
 const { notfoundHandler } = require("../heandlers/notfoundHandler");
 const route = require("../routes");
-// const { parseJson } = require("./parseJson");
+const { parseJson } = require("./utilities");
 
 // reqres object -> module csafolld
 const reqAndres = {};
@@ -47,7 +47,7 @@ reqAndres.requestHandler = (req, res) => {
 
   req.on("end", () => {
     realData += decoder.end();
-    // requestproperties.body = parseJson(realData); //parse json is a module bulted by me, that chack the posted data is a valid json
+    requestproperties.body = parseJson(realData); //parse json is a module bulted by me, that chack the posted data is a valid json
 
     choosenHandler(requestproperties, (statusCode, payload) => {
       statusCode = typeof statusCode === "number" ? statusCode : 500;
