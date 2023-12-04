@@ -35,5 +35,27 @@ utilities.hash = (str) => {
   }
 };
 
+// create random string sting to object
+utilities.createToken = (strLenth) => {
+  const length =
+    typeof strLenth === "number" && strLenth > 0 ? strLenth : false;
+
+  if (length) {
+    const possibleCarecters = "qwertyuioplkjhgfdaszxcvbnm1234567890";
+    let finalToken = "";
+
+    for (let i = 0; i < length; i++) {
+      const randomCharecters = possibleCarecters.charAt(
+        Math.floor(Math.random() * possibleCarecters.length)
+      );
+      finalToken += randomCharecters;
+    }
+    return finalToken;
+    //
+  } else {
+    return;
+  }
+};
+
 // export scafolding utilities;
 module.exports = utilities;
