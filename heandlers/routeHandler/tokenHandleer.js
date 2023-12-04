@@ -25,49 +25,47 @@ handler.tokenHandler = (requestproperties, callback) => {
 };
 
 handler._token.get = (requestproperties, callback) => {
-  //geting query object\
-  const phone =
-    typeof requestproperties.queryStringObj.phone === "string" &&
-    requestproperties.queryStringObj.phone.trim().length === 11 &&
-    requestproperties.queryStringObj.phone.startsWith("01", 0)
-      ? requestproperties.queryStringObj.phone
+  //geting tockrn ID fromquery object\
+  const ToKenId =
+    typeof requestproperties.queryStringObj.id === "string" &&
+      requestproperties.queryStringObj.id.trim().length === 20
+      ? requestproperties.queryStringObj.id
       : false;
 
-  //   if (phone) {
-  //     lib.read("usersInfo", phone, (err, data) => {
-  //       if (!err && data) {
-  //         console.log(data);
-  //         const user = { ...parseJson(data) };
-  //         delete user.password;
-  //         callback(200, { user });
-  //       } else {
-  //         callback(404, { error: "User not found" });
-  //       }
-  //     });
-  //   } else {
-  //     callback(404, { error: "User not found" });
-  //   }
+  console.log(ToKenId);
+
+  if (ToKenId) {
+    lib.read("Tokens", ToKenId, (err, ToKenData) => {
+      if (!err && ToKenData) {
+        const token = { ...parseJson(ToKenData) };
+        callback(200, { token });
+      } else {
+        callback(404, { error: "token not not found" });
+      }
+    });
+  } else {
+    callback(404, { error: "Token not found | last" });
+  }
 };
 handler._token.post = (requestproperties, callback) => {
   //
   const users_info = requestproperties.body;
-  console.log(requestproperties.body);
 
   //password and phone number
 
   const phone =
     typeof users_info.phone === "string" &&
-    users_info.phone.trim().length === 11 &&
-    users_info.phone.startsWith("01", 0)
+      users_info.phone.trim().length === 11 &&
+      users_info.phone.startsWith("01", 0)
       ? users_info.phone
       : false;
 
   const password =
     typeof users_info.password === "string" &&
-    users_info.password.trim().length >= 6
+      users_info.password.trim().length >= 6
       ? users_info.password
       : false;
-  console.log(phone);
+
   //chack password and phone is here
   if (phone && password) {
     lib.read("usersInfo", phone, (err, userData) => {
@@ -75,6 +73,7 @@ handler._token.post = (requestproperties, callback) => {
         //    valided user and pass is matchesc
         if (parseJson(userData).password === hash(password)) {
           const tokenID = createToken(20);
+          const currentDate = new Date();
           const expireDate = new Date() + 60 * 60 * 1000;
           const tokenObj = {
             phone,
@@ -89,7 +88,7 @@ handler._token.post = (requestproperties, callback) => {
                 response: "ther was an Error in server site|creat tokenhandler",
               });
             } else {
-              callback(200, response);
+              callback(200, { response: "Token created successfully" });
             }
           });
         } else {
@@ -107,67 +106,58 @@ handler._token.post = (requestproperties, callback) => {
     });
   }
 };
-// handler._token.put = (requestproperties, callback) => {
-//   const users_info = requestproperties.body;
+// update theb Token
+handler._token.put = (requestproperties, callback) => {
+  const token_info = requestproperties.body;
 
-//   const fName =
-//     typeof users_info.firstName === "string" &&
-//     users_info.firstName.trim().length > 1
-//       ? users_info.firstName
-//       : false;
+  const id =
+    typeof token_info.id === "string" && token_info.id.trim().length === 20
+      ? token_info.id
+      : false;
 
-//   const LName =
-//     typeof users_info.lastName === "string" &&
-//     users_info.lastName.trim().length > 1
-//       ? users_info.lastName
-//       : false;
+  const extend =
+    typeof token_info.extend === "boolean" && token_info.extend === true
+      ? true
+      : false;
 
-//   const phone =
-//     typeof users_info.phone === "string" &&
-//     users_info.phone.trim().length === 11 &&
-//     users_info.phone.startsWith("01", 0)
-//       ? users_info.phone
-//       : false;
+  if (id && extend) {
+    lib.read("Tokens", id, (err, tokenData) => {
+      const tokenObj = parseJson(tokenData);
 
-//   const password =
-//     typeof users_info.password === "string" &&
-//     users_info.password.trim().length >= 6
-//       ? users_info.password
-//       : false;
+      if (new Date(tokenObj.expireDate) > Date.now()) {
+        tokenObj.expireDate = Date.now() + 60 * 60 * 1000;
+        //update expiration date
+        lib.update("Token", id, tokenObj, (err2) => {
+          if (!err2) {
+            callback(200, {
+              error: "token expire date success fully updated!",
+            });
+          } else {
+            callback(500, { error: "Some surverside Error!", error: err2 });
+          }
+        });
+      } else {
+        callback(404, { error: "token is allready expired!", err });
+      }
+    });
+  } else {
+    callback(404, { error: "wrong request" });
+  }
+};
+handler._token.delete = (requestproperties, callback) => {
+  const id =
+    typeof requestproperties.queryStringObj.id === "string" &&
+      requestproperties.queryStringObj.id.trim().length === 20
+      ? requestproperties.queryStringObj.id
+      : false;
 
-//   if (fName && LName && phone && password) {
-//     let userObject = {
-//       fName,
-//       LName,
-//       phone,
-//       password: hash(password),
-//     };
-//     lib.update("usersInfo", phone, userObject, (err, response) => {
-//       if (!err) {
-//         callback(200, { message: "user updated successfully" });
-//       } else {
-//         callback(response);
-//       }
-//     });
-//   } else {
-//     callback(404, { error: "cannot find user u update" });
-//   }
-// };
-// handler._token.delete = (requestproperties, callback) => {
-//   const phone =
-//     typeof requestproperties.queryStringObj.phone === "string" &&
-//     requestproperties.queryStringObj.phone.trim().length === 11 &&
-//     requestproperties.queryStringObj.phone.startsWith("01", 0)
-//       ? requestproperties.queryStringObj.phone
-//       : false;
-
-//   lib.delete("usersInfo", phone, (err, response) => {
-//     if (!err) {
-//       callback(200, response);
-//     } else {
-//       callback(response);
-//     }
-//   });
-// };
+  lib.delete("Tokens", id, (err, response) => {
+    if (!err) {
+      callback(200, response);
+    } else {
+      callback(response);
+    }
+  });
+};
 
 module.exports = handler;

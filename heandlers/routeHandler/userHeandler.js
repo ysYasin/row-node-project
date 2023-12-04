@@ -79,7 +79,7 @@ handler._user.post = (requestproperties, callback) => {
   const tosAgreement =
     typeof users_info.tosAgreement === "boolean" &&
     users_info.tosAgreement === true
-      ? users_info.tosAgreement
+      ? true
       : false;
 
   if (fName && LName && phone && password && tosAgreement) {
