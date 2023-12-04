@@ -9,21 +9,22 @@
 const environment = {};
 
 environment.staging = {
-    port: 3000,
-    envName: "staging",
+  port: 3000,
+  envName: "staging",
+  secrateKey: "hbjkfdjdsfhg",
 };
 environment.production = {
-    port: 5000,
-    envName: "production",
+  port: 5000,
+  envName: "production",
+  secrateKey: "ghjgkfldsa",
 };
 const portName = process.env.NODE_ENV;
-const currentEnvironment = typeof (portName) === "string" ? portName : "staging";
+const currentEnvironment = typeof portName === "string" ? portName : "staging";
 
 const environmentTOExport =
-    typeof (environment[currentEnvironment]) === "object"
-        ? environment[currentEnvironment]
-        : environment.staging;
-
+  typeof environment[currentEnvironment] === "object"
+    ? environment[currentEnvironment]
+    : environment.staging;
 
 //export environment
-module.exports = environmentTOExport
+module.exports = environmentTOExport;
