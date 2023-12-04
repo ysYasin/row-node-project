@@ -4,7 +4,9 @@
   "main": "index.js",
   "license": "MIT",
   "scripts":{
-    "start":"nodemon index.js"
+    "start": "SET NODE_ENV=staging && npx nodemon index.js",
+    "production": "SET NODE_ENV=production && npx nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
     "eslint": "^8.55.0"

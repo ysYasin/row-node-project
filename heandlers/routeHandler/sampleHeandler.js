@@ -1,5 +1,5 @@
 /**
- * title : handler
+ * title : sample handler
 */
 
 // module scaffolding;
