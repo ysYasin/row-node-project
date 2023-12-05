@@ -6,6 +6,7 @@
 const { hash } = require("../../healpers/utilities");
 const { parseJson } = require("../../healpers/utilities");
 const lib = require("../../lib/data");
+const tokenHandler = require("./tokenHandleer");
 
 // module scaffolding;
 const handler = {};
@@ -24,7 +25,6 @@ handler.userHeandler = (requestproperties, callback) => {
 
 handler._user.get = (requestproperties, callback) => {
   //geting query object\
-  //   console.log(requestproperties.queryStringObj.phone);
   const phone =
     typeof requestproperties.queryStringObj.phone === "string" &&
     requestproperties.queryStringObj.phone.trim().length === 11 &&
@@ -33,14 +33,25 @@ handler._user.get = (requestproperties, callback) => {
       : false;
 
   if (phone) {
-    lib.read("usersInfo", phone, (err, data) => {
-      if (!err && data) {
-        console.log(data);
-        const user = { ...parseJson(data) };
-        delete user.password;
-        callback(200, { user });
+    // verify token @TODO: check verifying in get, post and delete or nput
+    const token =
+      typeof requestproperties.headerObj.token === "string"
+        ? requestproperties.headerObj.token
+        : false;
+
+    tokenHandler._token.verify(token, phone, (err) => {
+      if (!err) {
+        lib.read("usersInfo", phone, (err, data) => {
+          if (!err && data) {
+            const user = { ...parseJson(data) };
+            delete user.password;
+            callback(200, { user });
+          } else {
+            callback(404, { error: "User not found" });
+          }
+        });
       } else {
-        callback(404, { error: "User not found" });
+        callback(404, "may token expire please signin agein");
       }
     });
   } else {

@@ -17,7 +17,6 @@ handler.tokenHandler = (requestproperties, callback) => {
   const method = requestproperties.method.trim();
   //diclire thie method
   if (acceptedMethods.indexOf(method) > -1) {
-    console.log(requestproperties.body);
     handler._token[method](requestproperties, callback);
   } else {
     callback(405, { message: `method not alowd` });
@@ -28,11 +27,9 @@ handler._token.get = (requestproperties, callback) => {
   //geting tockrn ID fromquery object\
   const ToKenId =
     typeof requestproperties.queryStringObj.id === "string" &&
-      requestproperties.queryStringObj.id.trim().length === 20
+    requestproperties.queryStringObj.id.trim().length === 20
       ? requestproperties.queryStringObj.id
       : false;
-
-  console.log(ToKenId);
 
   if (ToKenId) {
     lib.read("Tokens", ToKenId, (err, ToKenData) => {
@@ -55,14 +52,14 @@ handler._token.post = (requestproperties, callback) => {
 
   const phone =
     typeof users_info.phone === "string" &&
-      users_info.phone.trim().length === 11 &&
-      users_info.phone.startsWith("01", 0)
+    users_info.phone.trim().length === 11 &&
+    users_info.phone.startsWith("01", 0)
       ? users_info.phone
       : false;
 
   const password =
     typeof users_info.password === "string" &&
-      users_info.password.trim().length >= 6
+    users_info.password.trim().length >= 6
       ? users_info.password
       : false;
 
@@ -73,8 +70,7 @@ handler._token.post = (requestproperties, callback) => {
         //    valided user and pass is matchesc
         if (parseJson(userData).password === hash(password)) {
           const tokenID = createToken(20);
-          const currentDate = new Date();
-          const expireDate = new Date() + 60 * 60 * 1000;
+          const expireDate = Date.now() + 60 * 60 * 1000;
           const tokenObj = {
             phone,
             id: tokenID,
@@ -123,14 +119,15 @@ handler._token.put = (requestproperties, callback) => {
   if (id && extend) {
     lib.read("Tokens", id, (err, tokenData) => {
       const tokenObj = parseJson(tokenData);
+      console.log(parseJson(tokenData), tokenData);
 
-      if (new Date(tokenObj.expireDate) > Date.now()) {
+      if (tokenObj.expireDate > Date.now()) {
         tokenObj.expireDate = Date.now() + 60 * 60 * 1000;
         //update expiration date
-        lib.update("Token", id, tokenObj, (err2) => {
+        lib.update("Tokens", id, tokenObj, (err2) => {
           if (!err2) {
             callback(200, {
-              error: "token expire date success fully updated!",
+              error: "token expire date successfully updated!",
             });
           } else {
             callback(500, { error: "Some surverside Error!", error: err2 });
@@ -144,10 +141,11 @@ handler._token.put = (requestproperties, callback) => {
     callback(404, { error: "wrong request" });
   }
 };
+//delete tolen
 handler._token.delete = (requestproperties, callback) => {
   const id =
     typeof requestproperties.queryStringObj.id === "string" &&
-      requestproperties.queryStringObj.id.trim().length === 20
+    requestproperties.queryStringObj.id.trim().length === 20
       ? requestproperties.queryStringObj.id
       : false;
 
@@ -156,6 +154,23 @@ handler._token.delete = (requestproperties, callback) => {
       callback(200, response);
     } else {
       callback(response);
+    }
+  });
+};
+
+handler._token.verify = (id, phone, callback) => {
+  lib.read("Tokens", id, (err, tokenData) => {
+    if (!err && tokenData) {
+      if (
+        parseJson(tokenData).phone === phone &&
+        parseJson(tokenData).expireDate > Date.now()
+      ) {
+        callback(true);
+      } else {
+        callback(false);
+      }
+    } else {
+      callback(false);
     }
   });
 };

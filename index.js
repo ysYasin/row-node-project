@@ -1,5 +1,4 @@
 /**
-import { environment } from './heandlers/handleEnvironment/environment';
  * tittle : Uptime Monitoring Application
  * a Restfull API to monitoring up\down of user defiend Link
  * Aouthor : Yasin Arafat
@@ -7,14 +6,14 @@ import { environment } from './heandlers/handleEnvironment/environment';
  */
 
 // dependies
-const http = require('http');
-const { requestHandler } = require('./healpers/reqandres')
-const environment = require('./heandlers/handleEnvironment/environment')
-const lib = require('./lib/data');
+const http = require("http");
+const { requestHandler } = require("./healpers/reqandres");
+const environment = require("./heandlers/handleEnvironment/environment");
+const lib = require("./lib/data");
 
 //@TODO : delate in future;
-const myDatas = { name: 'yasin', age: 25, love: "meghla" }
-const updateDatas = { name: 'meghla', age: 22, love: "yasin" }
+const myDatas = { name: "yasin", age: 25, love: "meghla" };
+const updateDatas = { name: "meghla", age: 22, love: "yasin" };
 
 // lib.create('myData', 'UserInformations', myDatas, (err) => {
 //     if (err) { console.log(err); }
@@ -35,20 +34,19 @@ const app = {};
 
 // APP config
 app.config = {
-    port: 4000,
-}
+  port: 4000,
+};
 
 // creat http server
 app.createServer = () => {
-    const server = http.createServer(app.reqresHandler)
-    server.listen(environment.port, () => {
-        console.log(`server listening on ${environment.port}`);
-    })
-}
-
+  const server = http.createServer(app.reqresHandler);
+  server.listen(app.config.port, () => {
+    console.log(`server listening on ${app.config.port}`);
+  });
+};
 
 // reques and response handler
 app.reqresHandler = requestHandler;
 
 // run the server
-app.createServer()
+app.createServer();
